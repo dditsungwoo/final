@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.board.service.impl.BoardMapper">
+	
+	<sql id="selectAll">
+		  BRD_NO
+		, BRD_WRITER
+		, BRD_SUBJECT
+		, BRD_CONTENT
+		, BRD_HIT
+		, BRD_REGDATE
+		, BRD_REGIP
+		, BRD_MODDATE
+		, BRD_MODIP
+		, BRD_PASSWORD
+		, BRD_DEL_YN
+		, BRD_CATE
+		, COUNT(1) OVER() AS TOTAL
+	</sql>
+	
+	<select id="boardList" parameterType="searchVO" resultType="egovframework.example.board.service.BoardVO">
+			SELECT
+				<include refid="selectAll"></include>
+				
+			FROM 
+				BOARD
+			WHERE 1=1
+			AND BRD_DEL_YN='N' 
+			<if test="searchKeyword != null and searchKeyword != ''">		      		    
+				AND	BRD_SUBJECT LIKE '%' || #{searchKeyword} || '%' OR		
+					BRD_CONTENT LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			ORDER BY BRD_NO ASC
+			
+	</select>
+	
+	
+	<select id="view" parameterType="String" resultType="boardVO">
+		SELECT 
+			<include refid="selectAll"></include>
+		FROM
+			BOARD
+		WHERE 1=1
+		AND BRD_NO=#{brdNo}
+		AND BRD_DEL_YN='N'		
+	</select>
+	
+	<insert id="submit" parameterType="boardVO">
+		INSERT INTO BOARD(BRD_NO
+			,BRD_WRITER
+			,BRD_SUBJECT
+			,BRD_CONTENT
+			,BRD_HIT
+			,BRD_REGDATE
+			,BRD_REGIP
+			,BRD_PASSWORD
+			,BRD_DEL_YN
+			,BRD_CATE)
+		VALUES(
+			TO_CHAR(BOARD_PK.NEXTVAL,'FM00000')
+			,#{brdWriter}
+			,#{brdSubject}
+			,#{brdContent}
+			,0
+			,SYSDATE
+			,'127.0.0.1'
+			,#{brdPassword}
+			,'N'
+			,'0')			
+	</insert>
+	
+	<update id="plusOne" parameterType="String">
+		UPDATE 
+			BOARD
+		SET
+			BRD_HIT = BRD_HIT+1
+		WHERE 
+			BRD_NO = #{brdNo}
+				
+	</update>
+	
+	<update id="updateSubmit" parameterType="boardVO">
+		UPDATE 
+			BOARD 
+		SET 
+			 BRD_SUBJECT = #{brdSubject}
+			,BRD_CONTENT = #{brdContent}
+			,BRD_MODDATE = SYSDATE
+		WHERE
+			BRD_NO = #{brdNo}		
+	</update>
+	
+	<update id="delete" parameterType="String">
+		UPDATE 
+			BOARD
+		SET
+			BRD_DEL_YN='Y'
+		WHERE
+			BRD_NO=#{brdNo}		
+	</update>
+	
+	
+	
+</mapper>

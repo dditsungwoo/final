@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security" xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="customAccessDenied" class="egovframework.example.login.service.impl.CustomAccessDeniedHandler"/>
+	<bean id="customLoginSuccess" class="egovframework.example.login.service.impl.CustomLoginSuccessHandler"/>
+	<bean id="customUserDetailsService" class="egovframework.example.login.service.impl.CustomUserDetailsService"/>
+
+	<security:http  use-expressions="true" >
+  		<security:intercept-url pattern="/login/login.do" access="permitAll"/>
+  		<security:intercept-url pattern="/login/register.do" access="permitAll"/>
+  		<security:intercept-url pattern="/login/logout.do" access="permitAll"/>
+  	
+  		<security:intercept-url pattern="/" access="hasAnyRole('ROLE_ADMIN','ROLE_USER')"/>
+  		<security:intercept-url pattern="/login/**" access="permitAll"/>
+  		<security:intercept-url pattern="/board/**" access="hasAnyRole('ROLE_ADMIN','ROLE_USER')"/>
+  		<security:intercept-url pattern="/egov/**" access="hasAnyRole('ROLE_ADMIN','ROLE_USER')"/>
+	
+	
+  	 <security:form-login 
+		    login-page="/login/login.do"
+		    username-parameter="username" 
+			password-parameter="password"		
+		    login-processing-url="/login/enter.do" 
+		    default-target-url="/"
+		    authentication-failure-url="/login-error"
+		    authentication-success-handler-ref="customLoginSuccess"
+		     />
+  	
+  		
+  		<!--  <security:remember-me data-source-ref="dataSource" token-validity-seconds="604800"/> -->
+	<!--  로그아웃 처리 URI 지정, 로그아웃 한 후 세션 무효화 및 쿠키 삭제  -->
+	<!-- 	<security:logout logout-url="/logout" invalidate-session="true" delete-cookies="remember-me, JSESSION_ID"/> -->
+		<security:logout logout-url="login/logout.do" invalidate-session="true" delete-cookies="remember-me" logout-success-url="/login/login.do"/>
+		
+	</security:http>
+	
+ <!-- 	<security:authentication-manager>
+	  <security:authentication-provider>
+	    <security:user-service>
+	      <security:user name="admin" password="admin" authorities="ROLE_ADMIN"/>
+	      <security:user name="user" password="user" authorities="ROLE_USER"/>
+	    </security:user-service>
+	  </security:authentication-provider>
+	</security:authentication-manager>  -->
+		<security:authentication-manager>
+			<security:authentication-provider user-service-ref="customUserDetailsService"/>
+		</security:authentication-manager>	
+</beans>

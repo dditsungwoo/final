@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.reply.service.impl.ReplyMapper">
+	
+	 <sql id="selectAll">
+		  REP_NO
+		, BRD_NO
+		, REP_CONTENT
+		, REP_WRITER
+		, REP_PASSWORD
+		, REP_DEL_YN
+		, REP_REGDATE
+		, REP_REGIP
+		, REP_MODDATE
+		, REP_MODIP
+		, REP_UPPER_NO
+		, COUNT(1) OVER() AS TOTAL
+	</sql>
+	
+	<select id="replyList" parameterType="String" resultType="replyVO">
+			SELECT
+				<include refid="selectAll"></include>
+			FROM 
+				REPLY
+			WHERE 1=1
+			AND REP_DEL_YN='N' 
+			AND BRD_NO=#{brdNo}
+			ORDER BY REP_NO ASC
+			
+	</select>
+	
+	<insert id="replyInsert" parameterType="replyVO">
+	    	INSERT INTO
+	    		REPLY(
+	    			  REP_NO
+	    			, BRD_NO
+	    			, REP_CONTENT
+	    			, REP_WRITER
+	    			, REP_PASSWORD
+	    			, REP_DEL_YN
+	    			, REP_REGDATE
+	    			, REP_REGIP	    		
+	    		)
+	    	VALUES(
+	    		 TO_CHAR(REPLY_PK.NEXTVAL,'FM0000')
+	    		,#{brdNo}
+	    		,#{repContent}
+	    		,#{repWriter}
+	    		,#{repPassword}
+	    		,'N'
+	    		,sysdate
+	    		,'127.0.0.1'	    	
+	    	)	
+	    			
+	</insert>
+	
+	<update id="replyDelete" parameterType="replyVO">
+		UPDATE 
+			REPLY
+		SET
+			REP_DEL_YN='Y'	
+		WHERE 
+			REP_NO=#{repNo}				
+	</update>
+	
+	
+	<update id="replyEdit" parameterType="replyVO">
+		UPDATE
+			REPLY
+		SET
+			REP_CONTENT=#{repContent}
+		WHERE	
+			REP_NO=#{repNo}		
+	
+	</update>
+	
+	
+</mapper>

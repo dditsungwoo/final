@@ -27,8 +27,8 @@
 			WHERE 1=1
 			AND BRD_DEL_YN='N' 
 			<if test="searchKeyword != null and searchKeyword != ''">		      		    
-				AND	BRD_SUBJECT LIKE '%' || #{searchKeyword} || '%' OR		
-					BRD_CONTENT LIKE '%' || #{searchKeyword} || '%'
+				AND	(BRD_SUBJECT LIKE '%' || #{searchKeyword} || '%' OR		
+					BRD_CONTENT LIKE '%' || #{searchKeyword} || '%' )
 			</if>
 			ORDER BY BRD_NO ASC
 			
@@ -98,6 +98,123 @@
 		WHERE
 			BRD_NO=#{brdNo}		
 	</update>
+	
+	
+	<select id="selectLast" resultType="boardVO">
+		SELECT
+		  LPAD(NVL(MAX(TO_NUMBER(SUBSTR(BRD_NO, 2))), 1), 5, '0') AS BRD_NO 
+		FROM 
+			BOARD
+	</select>
+	
+	<insert id="insertAttFile" parameterType="attFileVO">
+		INSERT INTO
+			ATT_FILE(
+				  ATT_FILE_NO
+				, BRD_NO
+				, ATT_FILE_ORDER
+				, ATT_FILE_DIR
+				, ATT_FILE_ORINAME
+				, ATT_FILE_MODNAME
+				, ATT_FILE_TYPE
+				, ATT_FILE_SIZE
+				, ATT_FILE_REGDATE
+				, ATT_FILE_DEL_YN
+				<if test="attFileBase64 != null and attFileBase64 != ''">
+				, ATT_FILE_BASE64
+				</if>			
+			)			
+		VALUES(
+			 TO_CHAR(ATT_PK.NEXTVAL,'FM00000')
+			,#{brdNo}
+			,#{attFileOrder}
+			,#{attFileDir}
+			,#{attFileOriname}
+			,#{attFileModname}
+			,#{attFileType}
+			,#{attFileSize}
+			,SYSDATE
+			,'N'
+			<if test="attFileBase64 != null and attFileBase64 != ''">
+			, #{attFileBase64}
+			</if>
+		)	 
+			
+		
+	</insert>
+	
+	<select id="attFileList" parameterType="String" resultType="attFileVO">
+		SELECT 
+			  ATT_FILE_NO
+			, BRD_NO
+			, ATT_FILE_ORDER
+			, ATT_FILE_DIR
+			, ATT_FILE_ORINAME
+			, ATT_FILE_MODNAME
+			, ATT_FILE_TYPE
+			, ATT_FILE_SIZE
+			, ATT_FILE_REGDATE
+			, ATT_FILE_DEL_YN
+			, ATT_FILE_BASE64
+		FROM
+			ATT_FILE
+		WHERE 1=1
+		AND	  BRD_NO=#{brdNo}
+		AND	  ATT_FILE_DEL_YN='N'		
+					
+	</select>
+	
+	<delete id="attDel" parameterType="String">
+		DELETE FROM
+			ATT_FILE
+		WHERE 1=1		
+		AND	  ATT_FILE_NO=#{attFileNo}
+	
+	</delete>
+		
+	<select id="attFileOne" parameterType="String" resultType="attFileVO">
+			SELECT 
+				  ATT_FILE_NO
+				, BRD_NO
+				, ATT_FILE_ORDER
+				, ATT_FILE_DIR
+				, ATT_FILE_ORINAME
+				, ATT_FILE_MODNAME
+				, ATT_FILE_TYPE
+				, ATT_FILE_SIZE
+				, ATT_FILE_REGDATE
+				, ATT_FILE_DEL_YN
+				, ATT_FILE_BASE64
+			FROM
+				ATT_FILE	
+			WHERE 1=1
+			AND	  ATT_FILE_NO=#{attFileNo}
+			AND	  ATT_FILE_DEL_YN='N'	
+						
+	</select>	
+		
+	<update id="attYesUpdate" parameterType="attFileVO">
+		UPDATE
+			ATT_FILE
+		SET
+			ATT_FILE_ORDER=#{attFileOrder}
+		WHERE 1=1			
+		AND	  ATT_FILE_NO=#{attFileNo}
+		AND	  ATT_FILE_DEL_YN='N'			 
+	</update>
+		
+	<select id="attCount" parameterType="String" resultType="attFileVO" >
+		SELECT
+			COUNT(1) AS TOTAL
+		FROM
+			ATT_FILE
+		WHERE
+			 1=1
+		AND  BRD_NO=#{brdNo}
+		AND  ATT_FILE_DEL_YN='N'			
+	</select>
+	
+	
 	
 	
 	

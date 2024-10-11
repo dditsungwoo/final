@@ -66,7 +66,7 @@
                                 </div>					 							
                                 
                                 <div class="form-group">
-                                	<input type="text" id="sample6_postcode" class="form-control form-control-user" placeholder="우편번호"><br/>
+                                	<input type="text" id="sample6_postcode" class="form-control form-control-user" placeholder="우편번호" maxlength="8"><br/>
                                	</div>
                                	
                                 <div class="col-sm-5 mb-3 mb-sm-0"> 	
@@ -83,17 +83,17 @@
 									<input type="text" id="sample6_extraAddress" placeholder="참고항목" style="display:none;">
 									
                                 <button type="submit" class="btn btn-primary btn-user btn-block" id="submitBtn">
-                                    Register Account
+									회원 가입
                                 </button>
                                 <hr>
    								<sec:csrfInput />
                             </form>
                             <hr>
                             <div class="text-center">
-                                <a class="small" href="forgot-password.html">Forgot Password?</a>
+                               
                             </div>
                             <div class="text-center">
-                                <a class="small" href="login.html">Already have an account? Login!</a>
+                                <a class="small" href="/">로그인 페이지로</a>
                             </div>
                         </div>
                     </div>
@@ -201,7 +201,68 @@ $(()=>{
 	});
 	
 	
-})	
+})
+
+$("#memTel").on("blur",function() {
+	var args= $("#memTel").val();
+		console.log(args);
+	 	telValidator(args);
+});
+
+
+$("#memId").on("blur", function() {
+    var args = $(this).val();
+    if (args.length > 20) {
+        $(this).val('');  
+        alert("아이디는 20자를 넘을 수는 없습니다");
+    }
+});
+
+$("#memName").on("blur", function() {
+    var args = $(this).val();
+    if (args.length > 60) {
+        $(this).val('');  
+        alert("이름은 20자를 넘을 수는 없습니다");
+    }
+});
+
+$("#memPass").on("blur", function() {
+    var args = $(this).val();
+    if (args.length > 30) {
+        $(this).val('');  
+        alert("비밀번호는 20자를 넘을 수는 없습니다");
+    }
+});
+
+$("#memEmail").on("blur", function() {
+    var args = $("#memEmail").val();
+    if (args.length > 40) {
+        $(this).val('');  
+        alert("이메일는 40자를 넘을 수는 없습니다");
+        return;
+    }
+});
+
+$("#memAddr1, #memAddr2").on("blur", function() {
+    var args = $(this).val();
+    if (args.length > 40) {
+        $(this).val('');  
+        alert("주소는  한글 40자를 넘을 수는 없습니다");
+        return;
+    }
+});
+
+
+function telValidator(args) {
+    const msg = '유효하지 않는 전화번호입니다.';
+
+    if (/^[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}/.test(args)) {
+        return true;
+    }
+   	alert(msg);
+    $("#memTel").val("");
+    return false;
+}
 	</script>
 
 </body>

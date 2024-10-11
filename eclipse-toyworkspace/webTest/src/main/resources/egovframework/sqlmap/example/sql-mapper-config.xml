@@ -4,6 +4,7 @@
 <configuration>
 	<settings>
 		<setting name="mapUnderscoreToCamelCase" value="true"/>
+		<setting name="jdbcTypeForNull" value="VARCHAR"/>
 	</settings>
     <typeAliases>
 		<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
@@ -11,6 +12,7 @@
 		<typeAlias alias="sampleVO" type="egovframework.example.sample.service.SampleVO"/>
 		<typeAlias alias="memberVO" type="egovframework.example.login.service.MemberVO"/>
 		<typeAlias alias="boardVO" type="egovframework.example.board.service.BoardVO"/>		
+		<typeAlias alias="attFileVO" type="egovframework.example.board.service.AttFileVO"/>		
 		<typeAlias alias="replyVO" type="egovframework.example.reply.service.ReplyVO"/>
     </typeAliases>
 </configuration>

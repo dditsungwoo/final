@@ -38,8 +38,7 @@
 
 	<!-- Page Wrapper -->
 	<div id="wrapper">
-
-
+		
 
 		<!-- Content Wrapper -->
 		<div id="content-wrapper" class="d-flex flex-column">
@@ -66,7 +65,7 @@
 						<div class="input-group">
 							<input type="text" class="form-control bg-light border-0 small"
 								placeholder="Search for..." aria-label="Search"
-								aria-describedby="basic-addon2" name='searchKeyword'>
+								aria-describedby="basic-addon2" name='searchKeyword' value='${searchKeyword }'>
 							<div class="input-group-append">
 								<button class="btn btn-primary" type="submit">
 									<i class="fas fa-search fa-sm">검색</i>
@@ -84,8 +83,8 @@
 
 						<!-- Nav Item - User Information -->
 
-						<form class="nav-link" action="/login/logout.do" method="post">
-							<button type="submit" class="btn-secondary">로그아웃</button>
+						<form class="nav-link logoutBtn" action="/login/logout.do" method="post">
+							<button type="button" class="btn-secondary">로그아웃</button>
 							<sec:csrfInput/>
 						</form>
 
@@ -116,29 +115,36 @@
 											<th>작성일</th>
 											<th>아이피</th>
 											<th>조회수</th>
+											<th>첨부파일</th>
+											
 
 										</tr>
 									</thead>
-
+										
+										
 									<tbody>
-										<c:forEach var="result" items="${resultList}"
-											varStatus="status">
-											
-											<tr>
-												<td align="center" class="listtd"><c:out
-														value="${paginationInfo.totalRecordCount+1 - ((searchVO.pageIndex-1) * searchVO.pageSize + status.count)}" /></td>
-												<td align="left" class="listtd"><a href="javascript:fn_egov_select('<c:out value="${result.brdNo}"/>')"><c:out
-														value="${result.brdSubject}" />&nbsp;</a></td>
-												<td align="center" class="listtd"><c:out
-															value="${result.brdWriter}" /></td>
-												<td align="center" class="listtd"><c:out
-														value="${result.brdRegdate}" />&nbsp;</td>
-												<td align="center" class="listtd"><c:out
-														value="${result.brdRegip}" />&nbsp;</td>
-												<td align="center" class="listtd"><c:out
-														value="${result.brdHit}" />&nbsp;</td>
-											</tr>
-										</c:forEach>
+									<c:if test= "${not empty resultList}">
+											<c:forEach var="result" items="${resultList}"
+												varStatus="status">
+												
+												<tr>
+													<td align="center" class="listtd"><c:out
+															value="${paginationInfo.totalRecordCount+1 - ((searchVO.pageIndex-1) * searchVO.pageSize + status.count)}" /></td>
+													<td align="left" class="listtd"><a href="javascript:fn_egov_select('<c:out value="${result.brdNo}"/>')"><c:out
+															value="${result.brdSubject}" />&nbsp;</a></td>
+													<td align="center" class="listtd"><c:out
+																value="${result.brdWriter}" /></td>
+													<td align="center" class="listtd"><c:out
+															value="${result.brdRegdate}" />&nbsp;</td>
+													<td align="center" class="listtd"><c:out
+															value="${result.brdRegip}" />&nbsp;</td>
+													<td align="center" class="listtd"><c:out
+															value="${result.brdHit}" />&nbsp;</td>
+													<td align="center" class="listtd"><c:out
+															value="${result.attNum}개" />&nbsp;</td>
+												</tr>
+											</c:forEach>
+										</c:if>
 									</tbody>
 								</table>
 								<a class="btn btn-primary" href="/board/write.do" >
@@ -217,12 +223,39 @@
 		location.href="/board/view.do?brdNo="+brdNo;
 	}
 	
-	
+	$(".logoutBtn button").on("click",function(){
+		  var result = confirm("정말 로그아웃 하시겠습니까?");
+	      if (result) {
+	         
+	          alert("로그아웃 완료됐습니다");
+	         
+	          $(".logoutBtn").submit() ;  
+	      } else {
+	       
+	          alert("로그아웃이 취소되었습니다.");
+	      }
+		
+	});	
 
 $(()=>{
 	$("#dataTable_filter").css("display","none");
 	
-console.log("ffs","${searchKeyword}");
+
+let submitResult= "${submit}"; 
+let deleteResult= "${delete}";
+let message = "${message}";
+
+if(submitResult !=null && submitResult!=''){
+	alert("등록 성공");
+}
+if(deleteResult !=null && deleteResult!=''){
+	alert("삭제 성공");
+}
+if(message !=null && message!=''){
+	alert("내용 없음");
+}
+
+
 });
 
 

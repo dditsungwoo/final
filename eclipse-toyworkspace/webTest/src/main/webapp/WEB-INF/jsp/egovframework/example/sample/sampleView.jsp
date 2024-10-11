@@ -44,6 +44,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+  
 }
 
 /* Container styling */
@@ -85,7 +86,9 @@ body {
 
 /* Content styling */
 .content {
+	height:200px; 
     font-size: 16px;
+	overflow-y: auto; 
 }
 
 /* Button styling */
@@ -190,18 +193,20 @@ body {
 }
 
 .comments-list {
-    max-height: 300px; /* 원하는 높이로 설정 */
+    max-height: 180px; /* 원하는 높이로 설정 */
     overflow-y: auto; /* 세로 스크롤 활성화 */
     margin-bottom: 20px; /* 아래 여백 추가 */
 }
 </style>
 </head>
-  <div class="container">
+	
+  <div class="container" >
+  	
         <div class="card">
             <div class="card-header">
                 <h1><c:out value="${boardVO.brdSubject}"/></h1>
 	                <div class="buttons">	                	
-			      		<a class="btn btn-primary" href="/board/list.do">목록</a>
+			      		<a class="btn btn-primary" href="/board/coolList.do?searchKeyword=${searchKeyword }">목록</a>
 		                <c:if test="${boardVO.brdWriter == memVO.memId }">   
 			                    <a class="btn btn-edit" href="/board/update.do?brdNo=${boardVO.brdNo }">수정</a>
 			                    <button class="btn btn-delete" id="bigDelete" >삭제</button>
@@ -212,8 +217,23 @@ body {
                 <p class="info writer"><strong>작성자:</strong><c:out value="${boardVO.brdWriter}"/></p>
                 <p class="info regDate"><strong>작성일:</strong> <c:out value="${boardVO.brdRegdate}"/></p>
                 <p class="info hit"><strong>조회수:</strong> <c:out value="${boardVO.brdHit}"/></p>
+                <c:if test="${not empty attFileVO }">
+                	<c:forEach items="${attFileVO}" var="att" varStatus="item">
+                	<p class="info"><strong>첨부파일:</strong>
+                	   <c:choose>
+                	   		<c:when test ="${not empty att.attFileBase64}">
+		                	   <a href="#" class="modalClass" data-base64="${att.attFileBase64}">${att.attFileOriname}</a>               	                	   		
+                	   		</c:when>
+                	   		<c:otherwise>
+                	   			<a href="#" class="modalClass" >${att.attFileOriname}</a>
+                	   		</c:otherwise>
+                	   </c:choose>
+                	   <a class="fileDown" href="/board/fileDown.do?storedFileName=${att.attFileModname}&originalFileName=${att.attFileOriname}"><img alt="#" src="/images/egovframework/example/arrow-alt-circle-down.svg" style="height:20px; width:10%;"></a>
+                	</p>
+                	</c:forEach>
+                </c:if> 
                 <p/><hr/>
-                <p class="content"><c:out value="${boardVO.brdContent}"/></p>
+                <p class="content"><c:out value="${boardVO.brdContent}" escapeXml="false"/></p>
             </div>
         </div>
         <div class="comments-section" >
@@ -228,7 +248,7 @@ body {
                      <div class="buttons"  style="text-align: right;">		                
                      <c:if test="${bean.repWriter == memVO.memId }">                     
 		                <button class="btn btn-edit btn-sm smallEdit" data-no='${bean.repNo}' >수정</button>
-		                <button class="btn btn-delete btn-sm smallDelete" data-no='${bean.repNo}'>삭제</button>
+		                <button class="btn btn-delete btn-sm smallDelete" data-no='${bean.repNo}' data-pass='${bean.repPassword}'>삭제</button>
             		</c:if>
             		</div>
                 </div>             
@@ -247,6 +267,29 @@ body {
             </div>
         </div>
     </div>
+    
+    <!-- 이미지  modal  -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		    <div class="modal-dialog" role="document">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		                <h5 class="modal-title" id="myModalLabel">사진 보기</h5>
+		                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		                    <span aria-hidden="true">&times;</span>
+		                </button>
+		            </div>
+		            <div class="modal-body">
+		            	여기 img자리		               
+		            </div>
+		            <div class="modal-footer">
+		                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+    
+    
+    
 <body>
 
 	<!-- Bootstrap core JavaScript-->
@@ -287,19 +330,29 @@ body {
      }
  }
  
+
+ 
  
  $(document).on("click",".smallDelete",function(){
 	 event.preventDefault();
 	 let repNo= $(this).data("no");
 	 let brdNo= "${boardVO.brdNo }";
+     let pass = $(this).data("pass");
+
+     var userInput = prompt("삭제 비밀번호 입력하세요:");
+     
+     // 입력값이 null이 아닌 경우 (사용자가 취소하지 않았을 때)
+     if (userInput == pass ) {        
+        
+     } else{
+         alert("비밀번호가 맞지 않습니다");
+         return;
+     }
 	 let data= {
 			 "repNo":repNo,
 			 "brdNo":brdNo
 	 };
 	 console.log(data);
-	  if (!confirm("정말로 삭제하시겠습니까?")) {
-	        return;
-	    }
 	  
 	 $.ajax({
 	     type: "post",
@@ -316,23 +369,23 @@ body {
 
 	        let str = ''; // 초기화
 	        $.each(res, function(idx, vo) {
-	            str += `<div class='comment'>
-	                        <p class='comment-author'>\${vo.repWriter}</p>
-	                        <p class='comment-text'>\${vo.repContent}</p>`;
-	                        
-	                        if (vo.repWriter === "${memVO.memId}") {
-	                        str += `<div class='buttons' style='text-align: right;'>
-	                                    <button class='btn btn-edit btn-sm smallEdit' data-no='\${vo.repNo}'>수정</button>
-	                                    <button class='btn btn-delete btn-sm smallDelete' data-no='\${vo.repNo}'>삭제</button>
-	                                </div>`;
-	                    }
-
-	             str+=  `</div>`;
-	        });
+		           str += "<div class='comment'>"
+		           str +=  "<p class='comment-author'>"+vo.repWriter+"</p>"
+		           str +=  "<p class='comment-text'>"+vo.repContent+"</p>"							                        
+		           if (vo.repWriter === "${memVO.memId}") {
+			           str +=  "<div class='buttons' style='text-align: right;'>"
+			           str +=  "<button class='btn btn-edit btn-sm smallEdit' data-no='"+vo.repNo+"'>수정</button>"
+			           str +=  "<button class='btn btn-delete btn-sm smallDelete' data-no='"+vo.repNo+"' data-pass='"+vo.repPassword+"'>삭제</button>"
+			           str +=  "</div>"
+		           }
+		           str+= '</div>';
+		        });
 
 	        $(".comments-list").html(str); // str을 comments-list에 설정
 			$("#repContent").val("");
 			$("#repPassword").val("");
+			
+			alert("삭제 완료 했습니다!");
 	     	},
 	     error:function(xhr){
 	    	   console.log("Error occurred:", status, error);
@@ -344,14 +397,39 @@ body {
   
  
  
- 
- $(".btn-submit").on("click",function(){
+ $(document).on("click",".btn-submit",function(){
+ //$(".btn-submit").on("click",function(){
 	 event.preventDefault();
 	 let repWriter =$("#repWriter").val();
 	 let repContent =$("#repContent").val();
 	 let repPassword =$("#repPassword").val();
 	 let brdNo= $("#brdNo").val();
 	 
+	    let maxContentLength = 100; 
+	    let minContentLength = 2; 
+	    
+	    let maxPasswordLength = 10;  
+	    let minPasswordLength = 1;   
+
+	    // 유효성 검사 - 내용 길이 확인
+	    if (repContent.length < minContentLength) {
+	        alert("내용은 최소 " + minContentLength + "자 이상 입력해야 합니다.");
+	        return;
+	    }
+	    if (repContent.length > maxContentLength) {
+	        alert("내용은 최대 " + maxContentLength + "자까지 입력할 수 있습니다.");
+	        return;
+	    }
+
+	    // 유효성 검사 - 비밀번호 길이 확인
+	    if (repPassword.length < minPasswordLength) {
+	        alert("비밀번호는 최소 " + minPasswordLength + "자 이상 입력해야 합니다.");
+	        return;
+	    }
+	    if (repPassword.length > maxPasswordLength) {
+	        alert("비밀번호는 최대 " + maxPasswordLength + "자까지 입력할 수 있습니다.");
+	        return;
+	    }
 	 let data={
 		 "repWriter":repWriter,
 		 "repContent":repContent,
@@ -364,33 +442,19 @@ body {
 	     data: JSON.stringify(data),	    
 	     contentType: "application/json;",
 	     type: "post",
+	     aysnc:false,
 	     beforeSend: function(xhr) {
 	         xhr.setRequestHeader("${_csrf.headerName}","${_csrf.token}");
 	     },
 	     success: function(res){
-	     	console.log("성공");		    
-	     	console.log(res);
-	     	$(".comments-list").html("");
-
-	        let str = ''; // 초기화
-	        $.each(res, function(idx, vo) {
-	            str += `<div class='comment'>
-	                        <p class='comment-author'>\${vo.repWriter}</p>
-	                        <p class='comment-text'>\${vo.repContent}</p>`;								                        
-	                        if (vo.repWriter === "${memVO.memId}") {
-	                        str += `<div class='buttons' style='text-align: right;'>
-	                                    <button class='btn btn-edit btn-sm smallEdit' data-no='\${vo.repNo}'>수정</button>
-	                                    <button class='btn btn-delete btn-sm smallDelete' data-no='\${vo.repNo}'>삭제</button>
-	                                </div>`;
-	                    }
-
-	             str+=  `</div>`;
-	        });
-
-	        $(".comments-list").html(str); // str을 comments-list에 설정
-	    	$("#repContent").val("");
-			$("#repPassword").val("");
-
+	    	 if(res!=null){
+	    		 location.reload();
+	    		 
+	    		 alert("댓글 생성 완료!");
+	    	 }else{
+	    		 alert("댓글 작성 오류!");
+	    	 }
+	  
 	     	},
 	     error:function(xhr){
 	     	console.log(xhr.status);	
@@ -437,24 +501,24 @@ $(document).on("click",".reset",function(){
 
 	        let str = ''; // 초기화
 	        $.each(res, function(idx, vo) {
-	            str += `<div class='comment'>
-	                        <p class='comment-author'>\${vo.repWriter}</p>
-	                        <p class='comment-text'>\${vo.repContent}</p>`;
-	                        
-	                        if (vo.repWriter === "${memVO.memId}") {
-	                        str += `<div class='buttons' style='text-align: right;'>
-	                                    <button class='btn btn-edit btn-sm smallEdit' data-no='\${vo.repNo}'>수정</button>
-	                                    <button class='btn btn-delete btn-sm smallDelete' data-no='\${vo.repNo}'>삭제</button>
-	                                </div>`;
-	                    }
-
-	             str+=  `</div>`;
-	        });
+		           str += "<div class='comment'>"
+		           str +=  "<p class='comment-author'>"+vo.repWriter+"</p>"
+		           str +=  "<p class='comment-text'>"+vo.repContent+"</p>"							                        
+		           if (vo.repWriter === "${memVO.memId}") {
+			           str +=  "<div class='buttons' style='text-align: right;'>"
+			           str +=  "<button class='btn btn-edit btn-sm smallEdit' data-no='"+vo.repNo+"'>수정</button>"
+			           str +=  "<button class='btn btn-delete btn-sm smallDelete' data-no='"+vo.repNo+"' data-pass='"+vo.repPassword+"'>삭제</button>"
+			           str +=  "</div>"
+		           }
+		           str+= '</div>';
+		        });
 
 	        $(".comments-list").html(str); // str을 comments-list에 설정
 	       	$("#repContent").val("");
 			$("#repPassword").val("");
 
+			
+			
 	     	},
 	     error:function(xhr){
 	    	   
@@ -472,6 +536,24 @@ $(document).on("click",".updateBtn",function(){
  	let repContent=$(".edit-input").val();
  	let brdNo= "${boardVO.brdNo }";
  	let repNo= $(this).data("no");
+ 	
+    let maxContentLength = 100; 
+    let minContentLength = 2; 
+    
+    let maxPasswordLength = 10;  
+    let minPasswordLength = 1;   
+
+    // 유효성 검사 - 내용 길이 확인
+    if (repContent.length < minContentLength) {
+        alert("내용은 최소 " + minContentLength + "자 이상 입력해야 합니다.");
+        return;
+    }
+    if (repContent.length > maxContentLength) {
+        alert("내용은 최대 " + maxContentLength + "자까지 입력할 수 있습니다.");
+        return;
+    }
+
+ 	
 	let data={
 			"repNo":repNo,
 			"repContent":repContent,
@@ -492,23 +574,22 @@ $(document).on("click",".updateBtn",function(){
 
 	        let str = ''; // 초기화
 	        $.each(res, function(idx, vo) {
-	            str += `<div class='comment'>
-	                        <p class='comment-author'>\${vo.repWriter}</p>
-	                        <p class='comment-text'>\${vo.repContent}</p>`;
-	                        
-	                        if (vo.repWriter === "${memVO.memId}") {
-	                        str += `<div class='buttons' style='text-align: right;'>
-	                                    <button class='btn btn-edit btn-sm smallEdit' data-no='\${vo.repNo}'>수정</button>
-	                                    <button class='btn btn-delete btn-sm smallDelete' data-no='\${vo.repNo}'>삭제</button>
-	                                </div>`;
-	                    }
-
-	             str+=  `</div>`;
-	        });
+		           str += "<div class='comment'>"
+		           str +=  "<p class='comment-author'>"+vo.repWriter+"</p>"
+		           str +=  "<p class='comment-text'>"+vo.repContent+"</p>"							                        
+		           if (vo.repWriter === "${memVO.memId}") {
+			           str +=  "<div class='buttons' style='text-align: right;'>"
+			           str +=  "<button class='btn btn-edit btn-sm smallEdit' data-no='"+vo.repNo+"'>수정</button>"
+			           str +=  "<button class='btn btn-delete btn-sm smallDelete' data-no='"+vo.repNo+"' data-pass='"+vo.repPassword+"'>삭제</button>"
+			           str +=  "</div>"
+		           }
+		           str+= '</div>';
+		        });
 
 	        $(".comments-list").html(str); // str을 comments-list에 설정
 			$("#repContent").val("");
 			$("#repPassword").val("");
+			alert("댓글 수정 완료!");
 	     	},
 	     error:function(xhr){
 	    
@@ -517,6 +598,31 @@ $(document).on("click",".updateBtn",function(){
  	});  	
 	
 });	
+
+
+$(()=>{
+	
+	
+	let updateResult= "${update}"; 
+	if(updateResult !=null && updateResult!=''){
+		alert("수정성공");
+	}
+	
+	 $(document).on("click", ".modalClass", function() {
+		 	  let base64= $(this).data("base64");
+		 	 if (base64 == null || base64 == '') {
+		 		  alert ("이미지 파일만 미리보기 가능합니다");
+		 		  return;
+		 	  }
+		 	  $(".modal-body").html("");
+			  $('#myModal').modal('show');
+			  let str= "<img src='data:image/jpeg;base64,"+base64+"'/>";
+			  $(".modal-body").html(str);
+		});
+		
+	
+	
+});
 
 
 

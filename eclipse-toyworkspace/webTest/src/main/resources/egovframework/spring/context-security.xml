@@ -11,7 +11,7 @@
   		<security:intercept-url pattern="/login/register.do" access="permitAll"/>
   		<security:intercept-url pattern="/login/logout.do" access="permitAll"/>
   	
-  		<security:intercept-url pattern="/" access="hasAnyRole('ROLE_ADMIN','ROLE_USER')"/>
+  		<security:intercept-url pattern="/*" access="hasAnyRole('ROLE_ADMIN','ROLE_USER')"/>
   		<security:intercept-url pattern="/login/**" access="permitAll"/>
   		<security:intercept-url pattern="/board/**" access="hasAnyRole('ROLE_ADMIN','ROLE_USER')"/>
   		<security:intercept-url pattern="/egov/**" access="hasAnyRole('ROLE_ADMIN','ROLE_USER')"/>
@@ -31,7 +31,7 @@
   		<!--  <security:remember-me data-source-ref="dataSource" token-validity-seconds="604800"/> -->
 	<!--  로그아웃 처리 URI 지정, 로그아웃 한 후 세션 무효화 및 쿠키 삭제  -->
 	<!-- 	<security:logout logout-url="/logout" invalidate-session="true" delete-cookies="remember-me, JSESSION_ID"/> -->
-		<security:logout logout-url="login/logout.do" invalidate-session="true" delete-cookies="remember-me" logout-success-url="/login/login.do"/>
+		<security:logout logout-url="login/logout.do" invalidate-session="true" delete-cookies="remember-me" logout-success-url="/"/>
 		
 	</security:http>
 	

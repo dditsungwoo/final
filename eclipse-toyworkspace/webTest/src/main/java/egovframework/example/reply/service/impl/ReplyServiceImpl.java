@@ -21,6 +21,9 @@ public class ReplyServiceImpl implements ReplyService {
 
     @Override
     public int replyInsert(ReplyVO replyVO) {
+        String content = replyVO.getRepContent();
+        content = convertText(content);
+        replyVO.setRepContent(content);
         
         return this.mapper.replyInsert(replyVO);
     }
@@ -36,4 +39,22 @@ public class ReplyServiceImpl implements ReplyService {
         
         return this.mapper.replyEdit(replyVO);
     }
+
+    @Override
+    public ReplyVO replyCount(String brdNo) {
+        
+        return this.mapper.replyCount(brdNo);
+    }
+    
+    
+    public String convertText(String text) {
+        return text.replaceAll("(\r\n|\n\r|\r|\n)", "<br>");
+    }
+
+    public String convertHtml(String text) {
+        return text.replaceAll("<br>","\n");
+    }
+
+    
+    
 }

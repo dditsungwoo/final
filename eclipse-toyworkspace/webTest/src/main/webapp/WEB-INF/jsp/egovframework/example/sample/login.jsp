@@ -47,11 +47,11 @@
                                         <div class="form-group">
                                             <input type="text" class="form-control form-control-user" name="username"
                                                 id="username" aria-describedby="emailHelp"
-                                                placeholder="Enter Email Address...">
+                                                placeholder="아이디 입력..">
                                         </div>
                                         <div class="form-group">
                                             <input type="password" class="form-control form-control-user" name="password"
-                                                id="password" placeholder="Password">
+                                                id="password" placeholder="비밀번호 입력..">
                                         </div>
                                         <div class="form-group">
                                        <!--      <div class="custom-control custom-checkbox small">
@@ -61,7 +61,7 @@
                                             </div> -->
                                         </div>
                                         <button type="submit" class="btn btn-primary btn-user btn-block">
-                                            Login
+                                            	로그인
                                         </button>
                                      <!--  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> --> 
 											<sec:csrfInput/>
@@ -99,5 +99,21 @@
     <script src="/js/sb-admin-2.min.js"></script>
 
 </body>
+
+<script type="text/javascript">
+let submitResult= "${addOk}"; 
+let logoutResult= "${logout}"; 
+
+console.log(logoutResult);
+console.log("submitResult");
+if(submitResult !=null && submitResult!=''){
+	alert("가입 성공!!");
+}
+if(logoutResult !=null && logoutResult!=''){
+	alert("로그아웃 성공!!");
+}
+
+</script>
+
 
 </html>

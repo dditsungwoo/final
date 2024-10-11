@@ -9,8 +9,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.util.FileCopyUtils;
+import egovframework.example.board.service.AttFileVO;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
@@ -950,4 +955,37 @@ public class CommonUtills {
 		byte[] decodedBytes = Base64.getDecoder().decode(str);
 		return new String(decodedBytes);
 	}
+	
+	
+	//파일 다운로드
+	public static void fileDownload (AttFileVO fileVO, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+	  // globals.properties
+	  File file = new File("c:\\upload", fileVO.getAttFileModname());
+	  BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
+
+	  //User-Agent : 어떤 운영체제로  어떤 브라우저를 서버( 홈페이지 )에 접근하는지 확인함
+	  String header = request.getHeader("User-Agent");
+	  String fileName;
+
+	  if ((header.contains("MSIE")) || (header.contains("Trident")) || (header.contains("Edge"))) {
+	    //인터넷 익스플로러 10이하 버전, 11버전, 엣지에서 인코딩 
+	    fileName = URLEncoder.encode(fileVO.getAttFileOriname(), "UTF-8");
+	  } else {
+	    //나머지 브라우저에서 인코딩
+	    fileName = new String(fileVO.getAttFileOriname().getBytes("UTF-8"), "iso-8859-1");
+	  }
+	  //형식을 모르는 파일첨부용 contentType
+	  response.setContentType("application/octet-stream");
+	  //다운로드와 다운로드될 파일이름
+	  response.setHeader("Content-Disposition", "attachment; filename=\""+ fileName + "\"");
+	  //파일복사
+	  FileCopyUtils.copy(in, response.getOutputStream());
+	  in.close();
+	  response.getOutputStream().flush();
+	  response.getOutputStream().close();
+	}
+	
+	
+	
 }

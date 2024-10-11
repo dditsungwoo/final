@@ -15,5 +15,6 @@ public interface ReplyMapper {
     public int replyDelete(ReplyVO replyVO);
 
     public int replyEdit(ReplyVO replyVO);
-
+    
+    public ReplyVO replyCount(String brdNo);
 }

@@ -74,5 +74,17 @@
 	
 	</update>
 	
+	<select id="replyCount" parameterType="String" resultType="replyVO" >
+		SELECT
+			COUNT(1) AS TOTAL
+		FROM
+			REPLY
+		WHERE
+			 1=1
+		AND  BRD_NO=#{brdNo}
+		AND  REP_DEL_YN='N'			
+	</select>
+	
+	
 	
 </mapper>
